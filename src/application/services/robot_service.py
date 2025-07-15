@@ -2,13 +2,17 @@ from src.application.repository.robot_repository import RobotRepository
 from src.application.services.work_space import WorkSpaceService
 from src.domain.robot.entity import Robot
 from src.domain.robot.value_objects import Position, Orientation
-from src.domain.workspace.entity import WorkSpace
 
 
 class RobotService:
 
-    def __init__(self, robot_repository: RobotRepository):
+    def __init__(
+        self,
+        robot_repository: RobotRepository,
+        workspace_service: WorkSpaceService,
+    ):
         self.robot_repository = robot_repository
+        self.wokspace_service = workspace_service
 
     def _parse_robot_position_orientation(
         self, position_list: list[Position], orientation_list: list[Orientation]
@@ -22,11 +26,12 @@ class RobotService:
             )
         return "\n".join(result_position_orientation)
 
-    def process_instructions(self, workspace: WorkSpace) -> str:
+    def process_instructions(self) -> str:
         instruction_list = self.robot_repository.get_robot_instruction_list()
         initial_position_list = self.robot_repository.get_robot_position_list()
         initial_orientation_list = self.robot_repository.get_robot_orientation_list()
 
+        workspace = self.wokspace_service.get_workspace()
         final_position_list = []
         final_orientation_list = []
         for i in range(len(instruction_list)):
@@ -36,7 +41,8 @@ class RobotService:
                 )
 
             robot = Robot(
-                position=initial_position_list[i], orientation=initial_orientation_list[i]
+                position=initial_position_list[i],
+                orientation=initial_orientation_list[i],
             )
             robot.execute_instructions(
                 instructions=instruction_list[i], workspace=workspace

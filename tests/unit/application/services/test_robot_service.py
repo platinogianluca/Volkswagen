@@ -1,3 +1,4 @@
+from src.application.services.work_space import WorkSpaceService
 from src.domain.workspace.entity import WorkSpace
 import pytest
 from unittest.mock import Mock, patch
@@ -7,6 +8,11 @@ from src.domain.robot.value_objects import Position, Orientation
 
 
 class TestRobotInstructionService:
+
+    def setup_method(self):
+        self.workspace = Mock(spec=WorkSpace)
+        self.workspace_service = Mock(spec=WorkSpaceService)
+        self.workspace_service.get_workspace.return_value = self.workspace
 
     @pytest.mark.parametrize(
         "positions_data,orientations_data,expected_output",
@@ -39,7 +45,10 @@ class TestRobotInstructionService:
             orientation_list.append(orientation)
 
         # Act
-        service = RobotService(robot_repository=Mock(spec=RobotRepository))
+        service = RobotService(
+            robot_repository=Mock(spec=RobotRepository),
+            workspace_service=self.workspace_service,
+        )
         result = service._parse_robot_position_orientation(
             position_list=position_list, orientation_list=orientation_list
         )
@@ -77,8 +86,7 @@ class TestRobotInstructionService:
         expected_orientations,
     ):
         # Arrange
-        workspace = Mock(spec=WorkSpace)
-        workspace.is_position_valid.return_value = True
+        self.workspace.is_position_valid.return_value = True
 
         num_robots = len(expected_positions)
 
@@ -113,8 +121,10 @@ class TestRobotInstructionService:
         mock_parse_method.return_value = mock_result
 
         # Act
-        service = RobotService(robot_repository=robot_repository)
-        result = service.process_instructions(workspace=workspace)
+        service = RobotService(
+            robot_repository=robot_repository, workspace_service=self.workspace_service
+        )
+        result = service.process_instructions()
 
         # Assert
         assert result == mock_result
@@ -126,8 +136,7 @@ class TestRobotInstructionService:
         # Arrange
         mock_robot = Mock()
         mock_robot_class.return_value = mock_robot
-        workspace = Mock(spec=WorkSpace)
-        workspace.is_position_valid.return_value = False
+        self.workspace.is_position_valid.return_value = False
 
         robot_repository = Mock(spec=RobotRepository)
         robot_repository.get_robot_instruction_list.return_value = ["L"]
@@ -138,6 +147,9 @@ class TestRobotInstructionService:
 
         # Act & Assert
         with pytest.raises(ValueError):
-            service = RobotService(robot_repository=robot_repository)
-            service.process_instructions(workspace=workspace)
+            service = RobotService(
+                robot_repository=robot_repository,
+                workspace_service=self.workspace_service,
+            )
+            service.process_instructions()
         mock_robot.execute_instructions.assert_not_called()

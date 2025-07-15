@@ -6,19 +6,19 @@ from src.infrastructure.file_input_reader import FileInputReader
 
 
 def main():
-    file_input_reader = FileInputReader()
-    input_text = file_input_reader.get_input("input.txt")
+    file_input_adapter = FileInputReader()
+    input_text = file_input_adapter.get_input("input.txt")
 
-    robot_service = RobotService(
-        robot_repository=TextRobotRepository(input_text=input_text)
-    )
     workspace_service = WorkSpaceService(
         workspace_repository=TextWorkSpaceRepository(input_text=input_text)
     )
+    robot_service = RobotService(
+        robot_repository=TextRobotRepository(input_text=input_text),
+        workspace_service=workspace_service
+    )
 
-    workspace = workspace_service.get_workspace()
-    output_text = robot_service.process_instructions(workspace)
-    print(output_text)
+    robot_position_orientation = robot_service.process_instructions()
+    print(robot_position_orientation)
 
 
 if __name__ == "__main__":

@@ -23,8 +23,8 @@ class Orientation:
         return Orientation(new_orientation)
 
     def turn_right(self) -> "Orientation":
-        new_value = self._TURN_RIGHT_MAP[self.current_orientation]
-        return Orientation(new_value)
+        new_orientation = self._TURN_RIGHT_MAP[self.current_orientation]
+        return Orientation(new_orientation)
 
 
 @dataclass(frozen=True)

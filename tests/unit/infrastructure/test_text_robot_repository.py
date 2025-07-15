@@ -1,7 +1,5 @@
 import pytest
 from src.infrastructure.text_robot_repository import TextRobotRepository
-from src.domain.robot.value_objects import Position, Orientation
-
 
 class TestTextRobotRepository:
 
