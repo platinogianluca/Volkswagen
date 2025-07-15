@@ -12,7 +12,7 @@ class RobotService:
         workspace_service: WorkSpaceService,
     ):
         self.robot_repository = robot_repository
-        self.wokspace_service = workspace_service
+        self.workspace_service = workspace_service
 
     def _parse_robot_position_orientation(
         self, position_list: list[Position], orientation_list: list[Orientation]
@@ -31,7 +31,7 @@ class RobotService:
         initial_position_list = self.robot_repository.get_robot_position_list()
         initial_orientation_list = self.robot_repository.get_robot_orientation_list()
 
-        workspace = self.wokspace_service.get_workspace()
+        workspace = self.workspace_service.get_workspace()
         final_position_list = []
         final_orientation_list = []
         for i in range(len(instruction_list)):
